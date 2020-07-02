@@ -28,7 +28,7 @@ def traverse_nodes(node, board, state, identity):
             value=UCT(node, node.child_nodes[child])
             children.append((value,child))
             
-        children.sort(key=byVal)
+        children.sort(key=byVal,reverse=True)
              
         for child in children:
             possible_leaf = traverse_nodes(node.child_nodes[child[1]], board, state, identity)
@@ -53,9 +53,7 @@ def expand_leaf(node, board, state):
     """
     
     #get random action
-    for acts in node.untried_actions:
-        action=acts
-        break
+    action=choice(node.untried_actions)
     (node.untried_actions).remove(action)
     new_node = MCTSNode(parent=node, parent_action=action, action_list=board.legal_actions(board.next_state(state, action)))
     node.child_nodes[action]=new_node
