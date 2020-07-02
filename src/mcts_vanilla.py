@@ -5,6 +5,7 @@ from math import sqrt, log
 
 num_nodes = 1000
 explore_faction = 2.
+winRates = []
 
 def traverse_nodes(node, board, state, identity):
     """ Traverses the tree until the end criterion are met.
@@ -84,8 +85,12 @@ def backpropagate(node, won):
 
     """
 
+    if(node.visits>0):
+        if((node.wins/node.visits,node) in winRates):
+            winRates.remove((node.wins/node.visits,node))
     node.wins=node.wins+won
     node.visits = node.visits+1
+    winRates.append((node.wins/node.visits,node))
     if(node.parent == None):
         return node
     else:
@@ -106,6 +111,8 @@ def think(board, state):
     identity_of_bot = board.current_player(state)
     root_node = MCTSNode(parent=None, parent_action=None, action_list=board.legal_actions(state))
 
+    winRates.clear()
+    
     for step in range(num_nodes):
         # Copy the game for sampling a playthrough
         sampled_game = state
@@ -114,20 +121,25 @@ def think(board, state):
         node = root_node
 
         # Do MCTS - This is all you!
-        node = traverse_nodes(node, board, state, identity_of_bot)
-        new_node = expand_leaf(node, board, state)
-        points = rollout(board, board.next_state(state, new_node.parent_action))
+        node = traverse_nodes(node, board, sampled_game, identity_of_bot)
+        new_node = expand_leaf(node, board, sampled_game)
+        points = rollout(board, board.next_state(sampled_game, new_node.parent_action))
         if(points[identity_of_bot]==1):
             won=1
         else:
             won=0
         backpropagate(new_node,won)
+        
+        
 
     # Return an action, typically the most frequently used action (from the root) or the action with the best
     # estimated win rate.
-    return new_node.parent_action
+    winRates.sort(key=byVal,reverse=True)
+    best=winRates[0][1]
+    return best.parent_action
+    
     
 def UCT(node, child):
     winRate = child.wins/child.visits
     exploration = log(node.visits)/child.visits
-    return winRate+2*sqrt(exploration)
+    return winRate+explore_faction*sqrt(exploration)
