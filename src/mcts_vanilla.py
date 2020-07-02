@@ -18,16 +18,27 @@ def traverse_nodes(node, board, state, identity):
     Returns:        A node from which the next stage of the search can proceed.
 
     """
+    
     if(len(node.untried_actions)>0):
         leaf_node = node   
         return leaf_node
     else:
+        children = []
         for child in node.child_nodes:
-            possible_leaf = traverse_nodes(node.child_nodes[child], board, state, identity)
+            value=UCT(node, node.child_nodes[child])
+            children.append((value,child))
+            
+        children.sort(key=byVal)
+             
+        for child in children:
+            possible_leaf = traverse_nodes(node.child_nodes[child[1]], board, state, identity)
             if(possible_leaf != None):
                 return possible_leaf
             
     return None
+    
+def byVal(e):
+    return e[0]
 
 def expand_leaf(node, board, state):
     """ Adds a new leaf to the tree by creating a new child node for the given node.
@@ -111,3 +122,8 @@ def think(board, state):
     # Return an action, typically the most frequently used action (from the root) or the action with the best
     # estimated win rate.
     return new_node.parent_action
+    
+def UCT(node, child):
+    winRate = child.wins/child.visits
+    exploration = log(node.visits)/child.visits
+    return winRate+2*sqrt(exploration)
