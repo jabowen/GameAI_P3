@@ -139,17 +139,10 @@ def think(board, state):
     # estimated win rate.
     winRates.sort(key=byVal,reverse=True)
     best=winRates[0][1]
-    best2 =[]
-    for child in root_node.child_nodes:
-        chi=root_node.child_nodes[child]
-        best2.append((chi.visits,chi))
-    best2.sort(key=byVal,reverse=True)
-    return best2[0][1].parent_action
+    return best.parent_action
     
     
 def UCT(node, child, myMove):
     winRate = child.wins/child.visits
-    if(myMove==False):
-        winRate=1-winRate
     exploration = log(node.visits)/child.visits
     return winRate+explore_faction*sqrt(exploration)
