@@ -5,4 +5,5 @@
 10 = Final win counts: {'draw': 1, 1: 93, 2: 6}
 
 It looks like the bot with the larger recursion level tends to beat the lower one.
+The closer the levels are, the less the disparity is in win rate.
 When recusion levels were both 100, the bots were pretty close to each other in score.
