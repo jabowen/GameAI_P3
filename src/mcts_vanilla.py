@@ -3,7 +3,7 @@ from mcts_node import MCTSNode
 from random import choice
 from math import sqrt, log
 
-num_nodes = 100
+num_nodes = 1000
 explore_faction = 2.
 
 def traverse_nodes(node, board, state, identity):
@@ -19,26 +19,32 @@ def traverse_nodes(node, board, state, identity):
 
     """
     
+    #return if leaf
     if(len(node.untried_actions)>0):
         leaf_node = node   
         return (leaf_node, state)
     else:
+    #calculate UCT for all children
         children = []
+        #find whose turn
         myMove=(identity == board.current_player(state))
         for child in node.child_nodes:
             value=UCT(node, node.child_nodes[child],myMove)
             children.append((value,child))
             
+        #sort by UCT
         children.sort(key=byVal,reverse=True)
              
         for child in children:
+        #call recurusively until a leaf is found
             possible_leaf = node.child_nodes[child[1]]
             possible_leaf_pair = traverse_nodes(possible_leaf, board, board.next_state(state, possible_leaf.parent_action), identity)
             if(possible_leaf != None):
                 return possible_leaf_pair
-            
+    #if no leaf is found return none    
     return None
-    
+   
+#sort by first in tuple   
 def byVal(e):
     return e[0]
 
@@ -54,9 +60,10 @@ def expand_leaf(node, board, state):
 
     """
     
-    #get random action
+    #get random action and remove from untried
     action=choice(node.untried_actions)
     (node.untried_actions).remove(action)
+    #make new node with that action and return it
     new_node = MCTSNode(parent=node, parent_action=action, action_list=board.legal_actions(board.next_state(state, action)))
     node.child_nodes[action]=new_node
     return (new_node, board.next_state(state, action))
@@ -70,9 +77,11 @@ def rollout(board, state):
         state:  The state of the game.
 
     """
+    #if game is over return points
     if(board.is_ended(state)):
         return board.points_values(state)
-    else:    
+    else:   
+        #if not make a random choice and call recursively
         action=choice(board.legal_actions(state))
         return rollout(board, board.next_state(state, action)) 
 
@@ -85,9 +94,10 @@ def backpropagate(node, won):
         won:    An indicator of whether the bot won or lost the game.
 
     """
-
+    #add to visits, and wins if won
     node.wins=node.wins+won
     node.visits = node.visits+1
+    #return if root, call recursively if not
     if(node.parent == None):
         return node
     else:
@@ -108,6 +118,7 @@ def think(board, state):
     identity_of_bot = board.current_player(state)
     root_node = MCTSNode(parent=None, parent_action=None, action_list=board.legal_actions(state))
     
+    #False if there are unexplored actions
     fullyExplored= False
     
     for step in range(num_nodes):
@@ -118,16 +129,26 @@ def think(board, state):
         node = root_node
 
         # Do MCTS - This is all you!
+        
+        #traverse, returns node and state
         pair = traverse_nodes(node, board, sampled_game, identity_of_bot)
+        #if pair is none, then all nodes are explored, and we can stop searching
         if(pair == None):
             fullyExplored=True
             break
+        
+        #use found node and state to make a new node and state
         new_pair = expand_leaf(pair[0], board, pair[1])
+        
+        #simulate game to end, return points
         points = rollout(board, board.next_state(new_pair[1], new_pair[0].parent_action))
+        
+        #if we won, then set won to 1, if not 0
         if(points[identity_of_bot]==1):
             won=1
         else:
             won=0
+        #give this information to all nodes on path    
         backpropagate(new_pair[0],won)
         
         
@@ -135,18 +156,25 @@ def think(board, state):
     # Return an action, typically the most frequently used action (from the root) or the action with the best
     # estimated win rate.
     best =[]
+    #search all children of root
     for child in root_node.child_nodes:
-        chi=root_node.child_nodes[child]
+        child_node=root_node.child_nodes[child]
+        #if fully explored then pick best win rate
         if(fullyExplored):
-            best.append((chi.wins/chi.visits,chi))
+            best.append((child_node.wins/child_node.visits,child_node))
         else:
-            best.append((chi.visits,chi))
+        #if not then pick most visited
+            best.append((child_node.visits,child_node))
+    #sort by win/visit rate
     best.sort(key=byVal,reverse=True)
+    #return best
     return best[0][1].parent_action
     
     
+#return UCT value
 def UCT(node, child, myMove):
     winRate = child.wins/child.visits
+    #if not my turn use opponants win rate
     if(myMove==False):
         winRate=1-winRate
     exploration = log(node.visits)/child.visits
