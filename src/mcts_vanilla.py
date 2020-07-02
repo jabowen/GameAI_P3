@@ -18,9 +18,16 @@ def traverse_nodes(node, board, state, identity):
     Returns:        A node from which the next stage of the search can proceed.
 
     """
-    pass
-    # Hint: return leaf_node
-
+    if(len(node.untried_actions)>0):
+        leaf_node = node   
+        return leaf_node
+    else:
+        for child in node.child_nodes:
+            possible_leaf = traverse_nodes(untried_actions[child], board, state, identity)
+            if(possible_leaf != None):
+                return possible_Leaf
+            
+    return None
 
 def expand_leaf(node, board, state):
     """ Adds a new leaf to the tree by creating a new child node for the given node.
@@ -33,8 +40,15 @@ def expand_leaf(node, board, state):
     Returns:    The added child node.
 
     """
-    pass
-    # Hint: return new_node
+    
+    #get random action
+    for acts in node.untried_actions:
+        action=acts
+        break
+    (node.untried_actions).remove(action)
+    new_node = MCTSNode(parent=node, parent_action=action, action_list=board.legal_actions(board.next_state(state, action)))
+    node.child_nodes[action]=new_node
+    return new_node
 
 
 def rollout(board, state):
@@ -45,7 +59,8 @@ def rollout(board, state):
         state:  The state of the game.
 
     """
-    pass
+    won = 1
+    return won
 
 
 def backpropagate(node, won):
@@ -56,7 +71,15 @@ def backpropagate(node, won):
         won:    An indicator of whether the bot won or lost the game.
 
     """
-    pass
+    if(won):
+        node.wins=node.wins+1
+
+    node.visits = node.visits+1
+    if(node.parent == None):
+        return node
+    else:
+        backpropagate(node.parent, won)
+        
 
 
 def think(board, state):
@@ -80,7 +103,13 @@ def think(board, state):
         node = root_node
 
         # Do MCTS - This is all you!
+        node = traverse_nodes(node, board, state, identity_of_bot)
+        new_node = expand_leaf(node, board, state)
+        won = rollout(board, board.next_state(state, new_node.parent_action))
+        backpropagate(new_node,won)
+        print(new_node.tree_to_string)
+        print(root_node.tree_to_string)
 
     # Return an action, typically the most frequently used action (from the root) or the action with the best
     # estimated win rate.
-    return None
+    return new_node.parent_action
