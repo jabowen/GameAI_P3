@@ -23,9 +23,9 @@ def traverse_nodes(node, board, state, identity):
         return leaf_node
     else:
         for child in node.child_nodes:
-            possible_leaf = traverse_nodes(untried_actions[child], board, state, identity)
+            possible_leaf = traverse_nodes(node.child_nodes[child], board, state, identity)
             if(possible_leaf != None):
-                return possible_Leaf
+                return possible_leaf
             
     return None
 
@@ -107,8 +107,6 @@ def think(board, state):
         new_node = expand_leaf(node, board, state)
         won = rollout(board, board.next_state(state, new_node.parent_action))
         backpropagate(new_node,won)
-        print(new_node.tree_to_string)
-        print(root_node.tree_to_string)
 
     # Return an action, typically the most frequently used action (from the root) or the action with the best
     # estimated win rate.
