@@ -5,7 +5,6 @@ from math import sqrt, log
 
 num_nodes = 1000
 explore_faction = 2.
-winRates = []
 
 def traverse_nodes(node, board, state, identity):
     """ Traverses the tree until the end criterion are met.
@@ -22,7 +21,7 @@ def traverse_nodes(node, board, state, identity):
     
     if(len(node.untried_actions)>0):
         leaf_node = node   
-        return leaf_node
+        return (leaf_node, state)
     else:
         children = []
         myMove=(identity == board.current_player(state))
@@ -33,9 +32,10 @@ def traverse_nodes(node, board, state, identity):
         children.sort(key=byVal,reverse=True)
              
         for child in children:
-            possible_leaf = traverse_nodes(node.child_nodes[child[1]], board, board.next_state(state, node.child_nodes[child[1]].parent_action), identity)
+            possible_leaf = node.child_nodes[child[1]]
+            possible_leaf_pair = traverse_nodes(possible_leaf, board, board.next_state(state, possible_leaf.parent_action), identity)
             if(possible_leaf != None):
-                return possible_leaf
+                return possible_leaf_pair
             
     return None
     
@@ -59,7 +59,7 @@ def expand_leaf(node, board, state):
     (node.untried_actions).remove(action)
     new_node = MCTSNode(parent=node, parent_action=action, action_list=board.legal_actions(board.next_state(state, action)))
     node.child_nodes[action]=new_node
-    return new_node
+    return (new_node, board.next_state(state, action))
 
 
 def rollout(board, state):
@@ -86,12 +86,8 @@ def backpropagate(node, won):
 
     """
 
-    if(node.visits>0):
-        if((node.wins/node.visits,node) in winRates):
-            winRates.remove((node.wins/node.visits,node))
     node.wins=node.wins+won
     node.visits = node.visits+1
-    winRates.append((node.wins/node.visits,node))
     if(node.parent == None):
         return node
     else:
@@ -111,8 +107,8 @@ def think(board, state):
     """
     identity_of_bot = board.current_player(state)
     root_node = MCTSNode(parent=None, parent_action=None, action_list=board.legal_actions(state))
-
-    winRates.clear()
+    
+    fullyExplored= False
     
     for step in range(num_nodes):
         # Copy the game for sampling a playthrough
@@ -122,29 +118,31 @@ def think(board, state):
         node = root_node
 
         # Do MCTS - This is all you!
-        node = traverse_nodes(node, board, sampled_game, identity_of_bot)
-        if(node == None):
+        pair = traverse_nodes(node, board, sampled_game, identity_of_bot)
+        if(pair == None):
+            fullyExplored=True
             break
-        new_node = expand_leaf(node, board, sampled_game)
-        points = rollout(board, board.next_state(sampled_game, new_node.parent_action))
+        new_pair = expand_leaf(pair[0], board, pair[1])
+        points = rollout(board, board.next_state(new_pair[1], new_pair[0].parent_action))
         if(points[identity_of_bot]==1):
             won=1
         else:
             won=0
-        backpropagate(new_node,won)
+        backpropagate(new_pair[0],won)
         
         
 
     # Return an action, typically the most frequently used action (from the root) or the action with the best
     # estimated win rate.
-    winRates.sort(key=byVal,reverse=True)
-    best=winRates[0][1]
-    best2 =[]
+    best =[]
     for child in root_node.child_nodes:
         chi=root_node.child_nodes[child]
-        best2.append((chi.visits,chi))
-    best2.sort(key=byVal,reverse=True)
-    return best2[0][1].parent_action
+        if(fullyExplored):
+            best.append((chi.wins/chi.visits,chi))
+        else:
+            best.append((chi.visits,chi))
+    best.sort(key=byVal,reverse=True)
+    return best[0][1].parent_action
     
     
 def UCT(node, child, myMove):
