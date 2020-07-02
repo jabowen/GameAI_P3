@@ -70,8 +70,11 @@ def rollout(board, state):
         state:  The state of the game.
 
     """
-    won = 1
-    return won
+    if(board.is_ended(state)):
+        return board.points_values(state)
+    else:    
+        action=choice(board.legal_actions(state))
+        return rollout(board, board.next_state(state, action)) 
 
 
 def backpropagate(node, won):
@@ -82,9 +85,8 @@ def backpropagate(node, won):
         won:    An indicator of whether the bot won or lost the game.
 
     """
-    if(won):
-        node.wins=node.wins+1
 
+    node.wins=node.wins+won
     node.visits = node.visits+1
     if(node.parent == None):
         return node
@@ -116,7 +118,11 @@ def think(board, state):
         # Do MCTS - This is all you!
         node = traverse_nodes(node, board, state, identity_of_bot)
         new_node = expand_leaf(node, board, state)
-        won = rollout(board, board.next_state(state, new_node.parent_action))
+        points = rollout(board, board.next_state(state, new_node.parent_action))
+        if(points[identity_of_bot]==1):
+            won=1
+        else:
+            won=0
         backpropagate(new_node,won)
 
     # Return an action, typically the most frequently used action (from the root) or the action with the best
