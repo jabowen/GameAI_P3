@@ -165,16 +165,32 @@ def think(board, state):
     best =[]
     #search all children of root
     for child in root_node.child_nodes:
+        loose = False
+        model_state=state
         child_node=root_node.child_nodes[child]
+        model_state = board.next_state(model_state,child_node.parent_action)
+        #check for failing child
+        for grand in child_node.child_nodes:
+            grandChild = child_node.child_nodes[grand]
+            model_state = board.next_state(model_state,grandChild.parent_action)
+            points = board.points_values(model_state)
+            if(points!=None and points[identity_of_bot]==-1):
+                loose=True
+                break
         #if fully explored then pick best win rate
         if(fullyExplored):
-            best.append((child_node.wins/child_node.visits,child_node))
+            best.append((child_node.wins/child_node.visits,child_node,loose))
         else:
         #if not then pick most visited
-            best.append((child_node.visits,child_node))
+            best.append((child_node.visits,child_node,loose))
     #sort by win/visit rate
     best.sort(key=byVal,reverse=True)
-    #return best
+    #return best without failing child
+    for n in best:
+        if(n[2]==False):
+            return n[1].parent_action
+        
+    #if not possible return best
     return best[0][1].parent_action
     
     

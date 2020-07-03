@@ -1,2 +1,7 @@
 Jake Bowen
 Daniel Vu
+
+1. changed the value of "won" to go between 1 and -1 instead of 1 and 0
+2. changed rollout to always pick a victory when possible
+3. changed think to attempt to do all moves that do not have 
+a failing child before trying ones that do
