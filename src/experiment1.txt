@@ -6,8 +6,8 @@ Player1 = vanilla(100), Player2 = vanilla(x)
 50 = Final win counts: {'draw': 4, 1: 55, 2: 41}
 10 = Final win counts: {'draw': 1, 1: 93, 2: 6}
 
-It looks like the bot with the larger recursion level tends to beat the lower one.
+It looks like the bot with the larger level of nodes tends to beat the lower one.
 The closer the levels are, the less the disparity is in win rate.
-When recusion levels were both 100, the bots were pretty close to each other in score,
-and the diffenrences in result are small enough that they could definitely be attributed
+When node levels were both 100, the bots were pretty close to each other in score,
+and the diffenrences in result are small enough that they could probably be attributed
 to chance.

@@ -2,6 +2,6 @@ Player1 = vanilla(x), Player2 = modified(x)
 
 1000 = Final win counts: {'draw': 0, 1: 45, 2: 55}
 500 = 
-100 = 
-50 = 
+100 = Final win counts: {'draw': 5, 1: 55, 2: 40}
+50 = Final win counts: {'draw': 8, 1: 46, 2: 46}
 10 =
