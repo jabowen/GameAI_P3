@@ -10,4 +10,6 @@ It looks like the bot with the larger level of nodes tends to beat the lower one
 The closer the levels are, the less the disparity is in win rate.
 When node levels were both 100, the bots were pretty close to each other in score,
 and the diffenrences in result are small enough that they could probably be attributed
-to chance.
+to chance. This makes sense, because the larger node level means more accurate win
+rates to pick from. Bigger differences in node levl will also lead to more changes in 
+accuracy.

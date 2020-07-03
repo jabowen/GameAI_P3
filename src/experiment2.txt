@@ -4,4 +4,14 @@ Player1 = vanilla(x), Player2 = modified(x)
 500 = 
 100 = Final win counts: {'draw': 5, 1: 55, 2: 40}
 50 = Final win counts: {'draw': 8, 1: 46, 2: 46}
-10 =
+10 = Final win counts: {'draw': 24, 1: 36, 2: 40}
+
+The modified bot is not much better then the vanilla bot. By testing the 3 changes
+we made separately, we found that the changes to the "won" variable did noticably
+increase win rate, while the changes to rollout() actually decreased it. The changes 
+think() had a small positive effect, but that could be due to chance. See README for 
+a list of changes. The changes in node level do not seem have too much of an effect on 
+which bot has a higher win rate, but the lower it gets the more likely ties are, 
+which makes sense, since the bots have less information to use,a nd will therefore 
+have a worse strategy.
+
