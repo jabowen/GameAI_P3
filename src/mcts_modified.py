@@ -3,7 +3,7 @@ from mcts_node import MCTSNode
 from random import choice
 from math import sqrt, log
 
-num_nodes = 1000
+num_nodes = 200
 explore_faction = 2.
 
 def traverse_nodes(node, board, state, identity):
@@ -150,10 +150,11 @@ def think(board, state):
         points = rollout(board, board.next_state(new_pair[1], new_pair[0].parent_action),identity_of_bot)
         
         #if we won, then set won to 1, if not 0
-        if(points[identity_of_bot]==1):
+        '''if(points[identity_of_bot]==1):
             won=1
         else:
-            won=0
+            won=0'''
+        won = points[identity_of_bot]
         #give this information to all nodes on path    
         backpropagate(new_pair[0],won)
         
