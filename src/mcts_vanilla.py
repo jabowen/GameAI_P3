@@ -3,7 +3,7 @@ from mcts_node import MCTSNode
 from random import choice
 from math import sqrt, log
 
-num_nodes = 200
+num_nodes = 100
 explore_faction = 2.
 
 def traverse_nodes(node, board, state, identity):

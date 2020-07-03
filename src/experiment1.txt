@@ -1,3 +1,5 @@
+Player1 = vanilla(100), Player2 = vanilla(x)
+
 1000 = Final win counts: {'draw': 1, 1: 4, 2: 95}
 500 = Final win counts: {'draw': 0, 1: 66, 2: 34}
 100 = Final win counts: {'draw': 1, 1: 56, 2: 43}
@@ -6,4 +8,6 @@
 
 It looks like the bot with the larger recursion level tends to beat the lower one.
 The closer the levels are, the less the disparity is in win rate.
-When recusion levels were both 100, the bots were pretty close to each other in score.
+When recusion levels were both 100, the bots were pretty close to each other in score,
+and the diffenrences in result are small enough that they could definitely be attributed
+to chance.
